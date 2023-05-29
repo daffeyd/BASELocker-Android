@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="Hello" type="id" />
+    <item name="Hello2" type="id" />
+    <item name="campusLocationTextView" type="id" />
+    <item name="textView6" type="id" />
+    <item name="roomLocationTextView" type="id" />
+    <item name="textView7" type="id" />
+    <item name="lockerNumberTextView" type="id" />
+    <item name="textView8" type="id" />
+    <item name="textView9" type="id" />
+    <item name="textView10" type="id" />
+    <item name="countdownTextView" type="id" />
+    <item name="button_Open" type="id" />
+    <item name="button_Close" type="id" />
+    <item name="button_Return" type="id" />
+    <item name="countdown24HoursTextView" type="id" />
+</resources>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:text="Hello, "
+        android:textSize="30sp"
+        android:layout_marginTop="50dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.041" />
+
+    <TextView
+        android:id="@+id/greeting1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/greeting1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/CampusLocDropdown"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="32dp"
+        android:padding="10dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/greeting1"
+        app:layout_constraintVertical_bias="0.1">
+
+        <AutoCompleteTextView
+            android:id="@+id/AutoComplete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Campus"
+            android:padding="16dp"
+            android:text="Campus Location" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/RoomLocDropdown"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="32dp"
+        android:padding="10dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CampusLocDropdown"
+        app:layout_constraintVertical_bias="0.1">
+
+        <AutoCompleteTextView
+            android:id="@+id/AutoCompleteRoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Room Location"
+            android:padding="16dp"
+            android:text="Room Location" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/LockerNameDropdown"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="32dp"
+        android:padding="10dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/RoomLocDropdown"
+        app:layout_constraintVertical_bias="0.1">
+
+        <AutoCompleteTextView
+            android:id="@+id/AutoCompleteLocker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Locker Name"
+            android:padding="16dp"
+            android:text="Locker Name" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/Status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LockerNameDropdown" />
+
+    <Button
+        android:id="@+id/conditionalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="Recommendation"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
