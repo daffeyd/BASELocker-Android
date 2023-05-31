@@ -91,6 +91,24 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+    fun getLockerArray(lockerRef: DatabaseReference, onArrayValue: (Array<String>) -> Unit) {
+        lockerRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val value = dataSnapshot. getValue()?.toString()
+
+                Log.i("dropdown location ", "$value")
+                val array = value?.split(";")?.toTypedArray()
+                Log.i("dropdown location ", "$array")
+                // Invoke the onArrayValue callback with the array value
+                if (array != null) {
+                    onArrayValue(array)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("fail", "Failed to read value.", error.toException())
+            }
+        })
+    }
     fun makeApiRequest(requestModel: RequestModel, callback: (responseData: ResponseModel?) -> Unit) {
         val response = ServiceBuilder.buildService(ApiRecomendationInterface::class.java)
         response.sendReq(requestModel).enqueue(object : Callback<ResponseModel> {
@@ -107,15 +125,23 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+    @Deprecated("Deprecated in Java")
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
+    override fun onBackPressed() {
+        // Disable the back button functionality
+        // Uncomment the line below if you want to block the back button completely
+        // super.onBackPressed()
+
+        // Or do nothing to simply ignore the back button press
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
         val database = FirebaseDatabase.getInstance()
-        val reference = FirebaseDatabase.getInstance().getReference();
         val username = intent.getStringExtra("username")
         val userRef = database.getReference("user/$username")
 
@@ -130,7 +156,13 @@ class MainActivity : AppCompatActivity() {
                 //
                 val intent = Intent(this, activity2::class.java)
                 intent.putExtra("username", username)
-                val items = arrayOf("BINUS ASO")
+                val campusArrayRef = database.getReference("databases/campus")
+
+
+                getLockerArray(campusArrayRef) { array ->
+                    Log.d("array value", "$array")
+
+                val items = array
                 val autoComplete: AutoCompleteTextView = findViewById(R.id.AutoComplete)
                 val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
 
@@ -145,36 +177,45 @@ class MainActivity : AppCompatActivity() {
                         Log.i("dropdown Campus ","$itemSelected" )
                         Toast.makeText(this, "Campus Location: $itemSelected", Toast.LENGTH_SHORT).show()
                     }
+                }
 
+                val locationArrayRef = database.getReference("databases/location")
 
-                val itemsRoom = arrayOf("Main Hallway")
-                val autoCompleteRoom: AutoCompleteTextView = findViewById(R.id.AutoCompleteRoom)
-                val adapterRoom = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, itemsRoom)
-                autoCompleteRoom.setAdapter(adapterRoom)
+                getLockerArray(locationArrayRef) { array ->
+                    val itemsRoom = array
+                    val autoCompleteRoom: AutoCompleteTextView = findViewById(R.id.AutoCompleteRoom)
+                    val adapterRoom =
+                        ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, itemsRoom)
+                    autoCompleteRoom.setAdapter(adapterRoom)
 
+                    autoCompleteRoom.onItemClickListener =
+                        AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                            val itemSelected = adapterView.getItemAtPosition(i)
+                            intent.putExtra("location", "$itemSelected")
+                            Log.i("dropdown location ", "$itemSelected")
+                            Toast.makeText(this, "Room Location: $itemSelected", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                }
+                val nameArrayRef = database.getReference("databases/name")
 
-                autoCompleteRoom.onItemClickListener =
-                    AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                        val itemSelected = adapterView.getItemAtPosition(i)
-                        intent.putExtra("location", "$itemSelected")
-                        Log.i("dropdown location ","$itemSelected" )
-                        Toast.makeText(this, "Room Location: $itemSelected", Toast.LENGTH_SHORT).show()
-                    }
+                getLockerArray(nameArrayRef) { array ->
+                    val itemsLoc = array
+                    val autoCompleteLoc: AutoCompleteTextView =
+                        findViewById(R.id.AutoCompleteLocker)
+                    val adapterLoc =
+                        ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, itemsLoc)
+                    autoCompleteLoc.setAdapter(adapterLoc)
 
-                val itemsLoc = arrayOf("A", "C")
-                val autoCompleteLoc: AutoCompleteTextView = findViewById(R.id.AutoCompleteLocker)
-                val adapterLoc = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, itemsLoc)
-                autoCompleteLoc.setAdapter(adapterLoc)
-
-                autoCompleteLoc.onItemClickListener =
-                    AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                        val itemSelected = adapterView.getItemAtPosition(i)
-                        intent.putExtra("name", "$itemSelected")
-                        Log.i("dropdown name ","$itemSelected" )
-                        Toast.makeText(this, "Locker Name: $itemSelected", Toast.LENGTH_SHORT).show()
-                    }
-
-
+                    autoCompleteLoc.onItemClickListener =
+                        AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                            val itemSelected = adapterView.getItemAtPosition(i)
+                            intent.putExtra("name", "$itemSelected")
+                            Log.i("dropdown name ", "$itemSelected")
+                            Toast.makeText(this, "Locker Name: $itemSelected", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                }
                 //
                 val usernameTextView = findViewById<TextView>(R.id.textView2)
                 val helloText = "Hello, "
@@ -187,8 +228,9 @@ class MainActivity : AppCompatActivity() {
                 val showStatusButton = findViewById<Button>(R.id.button)
                 showStatusButton.setOnClickListener {
 
+
+
                     startActivity(intent)
-                    finish()
                 }
 
                 val currentDateTime = LocalDateTime.now()
@@ -230,7 +272,6 @@ class MainActivity : AppCompatActivity() {
                                 intent.putExtra("location", location)
                                 intent.putExtra("name", predictedValue)
                                 startActivity(intent)
-                                finish()
                             }
 
 

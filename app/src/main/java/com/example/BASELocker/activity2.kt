@@ -1,5 +1,6 @@
 package com.example.BASELocker
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
@@ -20,6 +21,9 @@ import okhttp3.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -29,6 +33,7 @@ class activity2 : AppCompatActivity() {
 
 
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,12 +140,13 @@ class activity2 : AppCompatActivity() {
                             button.setBackgroundColor(ContextCompat.getColor(this@activity2,
                                 R.color.green
                             ))
+                            val buttonIndex = index.toInt()
+                            button.text = (buttonIndex + 1).toString()
                             myRef.setValue("tombol hijau")
                         } else {
                             if (statusValueIndex >= 1) {
                                 button.isEnabled = false
                                 val indexText = index + 1
-
 
                                 val predValueText = pred?.get(index).toString()
                                 var conditionalText = ""
@@ -170,8 +176,24 @@ class activity2 : AppCompatActivity() {
                                 val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
 
                                 lockerRefUpdate.setValue(statusValueUpdate)
+                                val currentDateTime = LocalDateTime.now()
+                                val formattedDateTime = currentDateTime.format(DateTimeFormatter.ofPattern("EEEE, HH:mm:ss"))
 
-                                val requestModel = RequestModel("Monday", 1)
+                                val day = formattedDateTime?.substringBefore(",").toString()
+                                val currentTime = LocalTime.now()
+
+                                val category = when {
+                                    currentTime >= LocalTime.parse("00:00") && currentTime < LocalTime.parse("10:10") -> 1
+                                    currentTime >= LocalTime.parse("10:10") && currentTime < LocalTime.parse("12:00") -> 2
+                                    currentTime >= LocalTime.parse("12:00") && currentTime < LocalTime.parse("15:00") -> 3
+                                    currentTime >= LocalTime.parse("15:00") && currentTime < LocalTime.parse("17:00") -> 4
+                                    else -> 5
+                                }
+
+                                println("Category: $category")
+                                println("Current day of the week: $day")
+
+                                val requestModel = RequestModel(day, category)
 
                                 makeApiRequest(requestModel) { responseData ->
                                     if (responseData != null) {

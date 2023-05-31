@@ -18,6 +18,20 @@ class activity1 : AppCompatActivity() {
     private lateinit var countdown24HoursTextView: TextView
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var countDownTimer24Hours: CountDownTimer
+    override fun onStop() {
+        super.onStop()
+        cancelTimers()
+    }
+
+    private fun cancelTimers() {
+        if (::countDownTimer.isInitialized) {
+            countDownTimer.cancel()
+        }
+        if (::countDownTimer24Hours.isInitialized) {
+            countDownTimer24Hours.cancel()
+        }
+    }
+
 
     fun getUsernameandPassValue(lockerRef: DatabaseReference, onStatusValue: (String, String?) -> Unit) {
         lockerRef.addValueEventListener(object : ValueEventListener {
@@ -62,8 +76,15 @@ class activity1 : AppCompatActivity() {
             }
         })
     }
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Disable the back button functionality
+        // Uncomment the line below if you want to block the back button completely
+        // super.onBackPressed()
 
-    @SuppressLint("SetTextI18n")
+        // Or do nothing to simply ignore the back button press
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_1)
@@ -76,6 +97,7 @@ class activity1 : AppCompatActivity() {
         getUsernameandPassValue(userRef) { pass, locker ->
 
             if (locker!="-"){
+
             countdownTextView = findViewById(R.id.countdownTextView)
             countdown24HoursTextView = findViewById(R.id.countdown24HoursTextView)
 
@@ -99,10 +121,12 @@ class activity1 : AppCompatActivity() {
                 val lockerNameTextView = findViewById<TextView>(R.id.lockerNameTextView)
                 val lockerNumberTextView = findViewById<TextView>(R.id.lockerNumberTextView)
 
+                val Hellotext = "Hello, $username"
 
 
 
-                usernameTextView.text = "Hello, $username"
+
+                usernameTextView.text = Hellotext
                 campusLocationTextView.text = campus
                 roomLocationTextView.text = location
                 lockerNameTextView.text = name
@@ -126,6 +150,8 @@ class activity1 : AppCompatActivity() {
             }
 
             countDownTimer24Hours.start()
+
+
             val remainingLimitTime = limitTime!! - System.currentTimeMillis()
 
             if (remainingLimitTime > 0) {
@@ -140,83 +166,44 @@ class activity1 : AppCompatActivity() {
                     }
 
                     override fun onFinish() {
-                        println("Timer expired! 3 minutes have passed.")
-                        val lockerRef = database.getReference("locker/$campus/$location/$name")
-                        getStatusandPredValue(lockerRef) { status, pred ->
-                            // Use the statusValue here
-                            var index = 0
-                            index = number.toInt()
-                            Log.i("status dan index", "$status , $index")
-
-                            val statusNumber = status[index-1].toString().toInt()
-
-
-                            Log.i("status number", "$statusNumber")
-                            if (statusNumber > 1){
-                                countDownTimer.cancel()
-                            }
-                            else {
-                                val statusValueUpdate =
-                                    status.substring(0, index - 1) + "0" + status.substring(index)
-                                val lockerRefUpdate =
-                                    database.getReference("locker/$campus/$location/$name/status")
-                                Log.i("status number", "kenapa di timer")
-                                lockerRefUpdate.setValue(statusValueUpdate)
-                                val userLocker = "-"
-                                val userLockerRef = database.getReference("user/$username/locker")
-
-                                userLockerRef.setValue(userLocker)
-                            }
-
-
-
-                        }
-
-                }}
+                        println("Timer expired! 4 minutes have passed.")
+                        
+                }
+                }
 
                 countDownTimer.start()
 
             }
 
+
                 Log.i("status number", "$remainingLimitTime")
-                if (remainingLimitTime <= 0 ){
-                    Log.i("status number", "kenapa")
-                    val lockerRef = database.getReference("locker/$campus/$location/$name")
-                    getStatusandPredValue(lockerRef) { status, pred ->
-                        // Use the statusValue here
-                        var index = 0
-                        index = number.toInt()
-                        Log.i("status dan index", "$status , $index")
 
-                        val statusNumber = status[index-1].toString().toInt()
-
-
-                        Log.i("status number", "$statusNumber")
-                        if (statusNumber > 1){
-                            countDownTimer.cancel()
-                        }
-                        else {
-                            Log.i("status number", "kenapa")
-                            val statusValueUpdate = status.substring(0, index - 1) + "0" + status.substring(index)
-                            val lockerRefUpdate =
-                                database.getReference("locker/$campus/$location/$name/status")
-                            lockerRefUpdate.setValue(statusValueUpdate)
-                            val userLocker = "-"
-                            val userLockerRef = database.getReference("user/$username/locker")
-
-                            userLockerRef.setValue(userLocker)
-                        }
-
-                    }
-
-            }
 
                 val lockerRef = database.getReference("locker/$campus/$location/$name")
                 getStatusandPredValue(lockerRef) { status, pred ->
+
                     // Use the statusValue here
                     var index = 0
                     index = number.toInt()
                     Log.i("status dan index", "$status , $index")
+                    val statuslocker = status.get(index-1).toString().toInt()
+                    if (remainingLimitTime<=0 ){
+                        if (statuslocker <= 1){
+                            returnButton.performClick()
+                        }
+                    }
+
+                    if (statuslocker < 2)
+                    {
+                        openButton.isEnabled = false
+                        closeButton.isEnabled = false
+
+                    }
+                    else
+                    {
+                        openButton.isEnabled = true
+                        closeButton.isEnabled = true
+                    }
 
 
                 
@@ -224,11 +211,10 @@ class activity1 : AppCompatActivity() {
 // Start the countdown when the "Open" button is pressed
                 openButton.setOnClickListener {
                     imagelock.setImageResource(R.mipmap.unlocked_padlock)
+                    Log.i("Value index di Open Button", "$index")
                     val statusValueUpdate = status.substring(0, index - 1) + "4" + status.substring(index)
                     val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
                     lockerRefUpdate.setValue(statusValueUpdate)
-
-
                 }
 
                 // Cancel the countdown timers when the "Close" button is pressed
@@ -264,6 +250,7 @@ class activity1 : AppCompatActivity() {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.putExtra("username", username)
                 startActivity(intent)
+                cancelTimers()
                 finish()
             }
 
