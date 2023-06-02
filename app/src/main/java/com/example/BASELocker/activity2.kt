@@ -215,6 +215,14 @@ class activity2 : AppCompatActivity() {
                                         userLockerRef.setValue(userLocker)
 
                                     } else {
+                                        val number = index + 1
+                                        val currentTimestamp = System.currentTimeMillis()
+                                        val futureTimestamp = currentTimestamp + (24 * 60 * 60 * 1000) // Add 24 hours in milliseconds
+                                        val limitTime = currentTimestamp + ( 60 * 1000) // Add 24 hours in milliseconds
+
+                                        val userLocker = "campus=$campus;location=$location;name=$name;number=$number;limit=$limitTime;time=$futureTimestamp"
+                                        val userLockerRef = database.getReference("user/$username/locker")
+                                        userLockerRef.setValue(userLocker)
                                         // Handle the failure or null response
                                         Log.i("failure", "API request failed or received null response")
                                     }
