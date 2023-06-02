@@ -187,20 +187,24 @@ class activity1 : AppCompatActivity() {
                     index = number.toInt()
                     Log.i("status dan index", "$status , $index")
                     val statuslocker = status.get(index-1).toString().toInt()
-                    if (remainingLimitTime<=0 ){
-                        if (statuslocker <= 1){
-                            returnButton.performClick()
-                        }
+                    if (statuslocker == 0){
+                        returnButton.performClick()
                     }
-
                     if (statuslocker < 2)
                     {
                         openButton.isEnabled = false
                         closeButton.isEnabled = false
+                    }
+                    if (statuslocker == 3)
+                    {
+                        imagelock.setImageResource(R.drawable.bitmap2x)
+                        openButton.isEnabled = true
+                        closeButton.isEnabled = true
 
                     }
-                    else
+                    if (statuslocker == 4)
                     {
+                        imagelock.setImageResource(R.mipmap.unlocked_padlock)
                         openButton.isEnabled = true
                         closeButton.isEnabled = true
                     }
@@ -210,7 +214,6 @@ class activity1 : AppCompatActivity() {
 
 // Start the countdown when the "Open" button is pressed
                 openButton.setOnClickListener {
-                    imagelock.setImageResource(R.mipmap.unlocked_padlock)
                     Log.i("Value index di Open Button", "$index")
                     val statusValueUpdate = status.substring(0, index - 1) + "4" + status.substring(index)
                     val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
@@ -219,7 +222,7 @@ class activity1 : AppCompatActivity() {
 
                 // Cancel the countdown timers when the "Close" button is pressed
                 closeButton.setOnClickListener {
-                    imagelock.setImageResource(R.drawable.bitmap2x)
+
 
                         val statusValueUpdate = status.substring(0, index - 1) + "3" + status.substring(index)
                         val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
