@@ -25,21 +25,80 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+
+class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
+
+    private val sensorManager: SensorManager =
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+    private val accelerometer: Sensor? =
+        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    private var raiseListener: PhoneRaiseListener? = null
+
+    // Interface for receiving phone raise events
+    interface PhoneRaiseListener {
+        fun onPhoneRaised()
+        fun onPhoneLowered()
+    }
+
+    // Register the phone raise listener
+    fun setPhoneRaiseListener(listener: PhoneRaiseListener) {
+        raiseListener = listener
+    }
+
+    // Start listening for phone raise events
+    fun startListening() {
+        accelerometer?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    // Stop listening for phone raise events
+    fun stopListening() {
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Not used in this example
+    }
+    override fun onSensorChanged(event: SensorEvent?) {
+        event?.let { sensorEvent ->
+            if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                val x = sensorEvent.values[0]
+                val y = sensorEvent.values[1]
+                val z = sensorEvent.values[2]
+//
+//                Log.d("updown", "$y",)
+//                Log.d("rightLeft", "$x",)
+
+                // Calculate the magnitude of the acceleration vector
+                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
+
+                // Adjust these threshold values as per your requirement
+                val raiseThreshold = 10 // Threshold for raising the phone
+                val lowerThreshold = -15 // Threshold for lowering the phone
+                if (y.toInt() > 8) {
+
+                    raiseListener?.onPhoneRaised()
+                   }
+
+                }
+            }
+        }
+    }
+
 
 class MainActivity : AppCompatActivity() {
-    data class Locker(val campus: Campus)
-
-    data class Campus(val location: Location)
-
-    data class Location(val name: Name)
-
-    data class Name(val status: String, val prediction: String)
-
 
     private lateinit var campusLocationEditText: EditText
     private lateinit var roomLocationEditText: EditText
     private lateinit var lockerNumberEditText: EditText
-    private lateinit var textView2: TextView
 
     private val activity1ResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -147,13 +206,33 @@ class MainActivity : AppCompatActivity() {
 
 
         getUsernameandPassValue(userRef) { pass, locker ->
+
             if (locker != "-"){
-                val intent = Intent(this, activity1::class.java)
-                intent.putExtra("username", username)
-                startActivity(intent)
+                val intentNone = Intent(this, activity1::class.java)
+                intentNone.putExtra("username", username)
+                startActivity(intentNone)
             }
             else{
-                //
+                val intentQR = Intent(this, qrReader::class.java)
+
+                val phoneRaiseDetector = PhoneRaiseDetector(this)
+
+                phoneRaiseDetector.setPhoneRaiseListener(object : PhoneRaiseDetector.PhoneRaiseListener {
+                    override fun onPhoneRaised() {
+                        phoneRaiseDetector.stopListening()
+                        intentQR.putExtra("username", username)
+                        startActivity(intentQR)
+                        Log.i("Phone Raised", "naiik")
+                    }
+
+                    override fun onPhoneLowered() {
+                        Log.i("Phone Lowered", "Turun")
+                    }
+                })
+                phoneRaiseDetector.startListening()
+
+
+
                 val intent = Intent(this, activity2::class.java)
                 intent.putExtra("username", username)
                 val campusArrayRef = database.getReference("databases/campus")
@@ -227,9 +306,7 @@ class MainActivity : AppCompatActivity() {
 
                 val showStatusButton = findViewById<Button>(R.id.button)
                 showStatusButton.setOnClickListener {
-
-
-
+                    phoneRaiseDetector.stopListening()
                     startActivity(intent)
                 }
 
@@ -271,6 +348,7 @@ class MainActivity : AppCompatActivity() {
                                 intent.putExtra("campus", campus)
                                 intent.putExtra("location", location)
                                 intent.putExtra("name", predictedValue)
+                                phoneRaiseDetector.stopListening()
                                 startActivity(intent)
                             }
 
