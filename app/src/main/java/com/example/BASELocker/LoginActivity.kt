@@ -5,9 +5,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.example.aplikasi.R
 import com.google.firebase.database.*
 import com.example.aplikasi.databinding.ActivityLoginBinding
 
@@ -60,6 +62,10 @@ class   LoginActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityLoginBinding
     private lateinit var loading: ProgressBar
+    private var x1: Float = 0f
+    private var x2: Float = 0f
+    private var y1: Float = 0f
+    private var y2: Float = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,11 +112,23 @@ class   LoginActivity : AppCompatActivity() {
 
         }
 
-
-
-
-
-
-
+    }
+    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
+        when (touchEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x1 = touchEvent.x
+                y1 = touchEvent.y
+            }
+            MotionEvent.ACTION_UP -> {
+                x2 = touchEvent.x
+                y2 = touchEvent.y
+                if (x1 > x2) {
+                    val i = Intent(this, RegisterActivity::class.java)
+                    startActivity(i)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.stay)
+                }
+            }
+        }
+        return false
     }
 }

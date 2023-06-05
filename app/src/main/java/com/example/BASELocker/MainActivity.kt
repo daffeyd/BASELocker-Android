@@ -7,7 +7,10 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +43,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var roomLocationEditText: EditText
     private lateinit var lockerNumberEditText: EditText
     private lateinit var textView2: TextView
+    private var x1: Float = 0f
+    private var x2: Float = 0f
+    private var y1: Float = 0f
+    private var y2: Float = 0f
 
     private val activity1ResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -136,6 +143,7 @@ class MainActivity : AppCompatActivity() {
         // Or do nothing to simply ignore the back button press
     }
     @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -224,14 +232,42 @@ class MainActivity : AppCompatActivity() {
                 val combinedText = "$helloText$username"
                 usernameTextView.text = combinedText
 
-
                 val showStatusButton = findViewById<Button>(R.id.button)
+                showStatusButton.isEnabled = false // Disable the button initially
+
+                val autoComplete = findViewById<AutoCompleteTextView>(R.id.AutoComplete)
+                val autoCompleteRoom = findViewById<AutoCompleteTextView>(R.id.AutoCompleteRoom)
+                val autoCompleteLocker = findViewById<AutoCompleteTextView>(R.id.AutoCompleteLocker)
+
+                val dropdowns = listOf(autoComplete, autoCompleteRoom, autoCompleteLocker)
+
+                // Set a listener for each dropdown
+                dropdowns.forEach { dropdown ->
+                    dropdown.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            // No implementation needed
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            // Check if all dropdowns have selections
+                            val allDropdownsSelected = dropdowns.all { it.text.isNotEmpty() }
+
+                            // Enable or disable the button based on the dropdowns' state
+                            showStatusButton.isEnabled = allDropdownsSelected
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            // No implementation needed
+                        }
+                    })
+                }
+
+                // Button click listener
                 showStatusButton.setOnClickListener {
-
-
-
+                    // Perform your action when the button is clicked
                     startActivity(intent)
                 }
+
 
                 val currentDateTime = LocalDateTime.now()
                 val formattedDateTime = currentDateTime.format(DateTimeFormatter.ofPattern("EEEE, HH:mm:ss"))
@@ -289,5 +325,23 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
+        when (touchEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x1 = touchEvent.x
+                y1 = touchEvent.y
+            }
+            MotionEvent.ACTION_UP -> {
+                x2 = touchEvent.x
+                y2 = touchEvent.y
+                if (x1 > x2) {
+                    val i = Intent(this, activity2::class.java)
+                    startActivity(i)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.stay )
+                }
+            }
+        }
+        return false
     }
 }

@@ -6,21 +6,23 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.aplikasi.R
 import com.google.firebase.database.*
-import kotlin.concurrent.timer
 
 class activity1 : AppCompatActivity() {
     private lateinit var countdownTextView: TextView
     private lateinit var countdown24HoursTextView: TextView
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var countDownTimer24Hours: CountDownTimer
-    var timerStart = true
-
+    private var x1: Float = 0f
+    private var x2: Float = 0f
+    private var y1: Float = 0f
+    private var y2: Float = 0f
     override fun onStop() {
         super.onStop()
         cancelTimers()
@@ -92,7 +94,6 @@ class activity1 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_1)
 
-
         val username = intent.getStringExtra("username")
         val database = FirebaseDatabase.getInstance()
         val userRef = database.getReference("user/$username")
@@ -153,8 +154,12 @@ class activity1 : AppCompatActivity() {
                 }
             }
 
+            countDownTimer24Hours.start()
+
+
             val remainingLimitTime = limitTime!! - System.currentTimeMillis()
 
+            if (remainingLimitTime > 0) {
                 countDownTimer = object : CountDownTimer(remainingLimitTime, 1000) {
                     override fun onTick(millisUntilFinished: Long) {
                         val seconds = (millisUntilFinished / 1000) % 60
@@ -167,18 +172,13 @@ class activity1 : AppCompatActivity() {
 
                     override fun onFinish() {
                         println("Timer expired! 4 minutes have passed.")
-
+                        
                 }
                 }
 
+                countDownTimer.start()
 
-
-                if (timerStart){
-                    countDownTimer24Hours.start()
-                    countDownTimer.start()
-                    timerStart = false
-                }
-
+            }
 
 
                 Log.i("status number", "$remainingLimitTime")
@@ -192,27 +192,49 @@ class activity1 : AppCompatActivity() {
                     index = number.toInt()
                     Log.i("status dan index", "$status , $index")
                     val statuslocker = status.get(index-1).toString().toInt()
-                    openButton.setOnClickListener {
-                        imagelock.setImageResource(R.mipmap.unlocked_padlock)
-                        Log.i("Value index di Open Button", "$index")
-                        val statusValueUpdate = status.substring(0, index - 1) + "4" + status.substring(index)
-                        val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
-                        lockerRefUpdate.setValue(statusValueUpdate)
+                    if (remainingLimitTime<=0 ){
+                        if (statuslocker <= 1){
+                            returnButton.performClick()
+                        }
                     }
 
-                    // Cancel the countdown timers when the "Close" button is pressed
-                    closeButton.setOnClickListener {
-                        imagelock.setImageResource(R.drawable.bitmap2x)
+                    if (statuslocker < 2)
+                    {
+                        openButton.isEnabled = false
+                        closeButton.isEnabled = false
+
+                    }
+                    else
+                    {
+                        openButton.isEnabled = true
+                        closeButton.isEnabled = true
+                    }
+
+
+                
+
+// Start the countdown when the "Open" button is pressed
+                openButton.setOnClickListener {
+                    imagelock.setImageResource(R.mipmap.unlocked_padlock)
+                    Log.i("Value index di Open Button", "$index")
+                    val statusValueUpdate = status.substring(0, index - 1) + "4" + status.substring(index)
+                    val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
+                    lockerRefUpdate.setValue(statusValueUpdate)
+                }
+
+                // Cancel the countdown timers when the "Close" button is pressed
+                closeButton.setOnClickListener {
+                    imagelock.setImageResource(R.drawable.bitmap2x)
 
                         val statusValueUpdate = status.substring(0, index - 1) + "3" + status.substring(index)
                         val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
                         lockerRefUpdate.setValue(statusValueUpdate)
 
 
-                    }
+                }
 
-                    returnButton.setOnClickListener {
-                        // Create an Intent to go back to MainActivity
+                returnButton.setOnClickListener {
+                    // Create an Intent to go back to MainActivity
 
 
 
@@ -220,44 +242,12 @@ class activity1 : AppCompatActivity() {
                         val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
                         Log.i("status number", "kenapa di return")
                         lockerRefUpdate.setValue(statusValueUpdate)
-                        val userLocker = "-"
-                        val userLockerRef = database.getReference("user/$username/locker")
-                        userLockerRef.setValue(userLocker)
+                    val userLocker = "-"
+                    val userLockerRef = database.getReference("user/$username/locker")
+                    userLockerRef.setValue(userLocker)
 
 
-                    }
-                    if (statuslocker == 0){
-                        openButton.isEnabled = false
-                        closeButton.isEnabled = false
-                            returnButton.performClick()
-                        Log.i("return button clicker", "memencet return")
-                    }
-
-                    if (statuslocker  == 1)
-                    {
-                        openButton.isEnabled = false
-                        closeButton.isEnabled = false
-
-                    }
-                    if (statuslocker == 3)
-                    {
-                        openButton.isEnabled = true
-                        closeButton.isEnabled = true
-                        imagelock.setImageResource(R.mipmap.unlocked_padlock)
-
-                    }
-                    if (statuslocker == 4 ||statuslocker == 2 )
-                    {
-                        openButton.isEnabled = true
-                        closeButton.isEnabled = true
-                        imagelock.setImageResource(R.drawable.bitmap2x)
-
-                    }
-
-
-
-// Start the countdown when the "Open" button is pressed
-
+                }
             }
         }
 
@@ -273,8 +263,24 @@ class activity1 : AppCompatActivity() {
 
 
 
-
-
+    }
+    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
+        when (touchEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x1 = touchEvent.x
+                y1 = touchEvent.y
+            }
+            MotionEvent.ACTION_UP -> {
+                x2 = touchEvent.x
+                y2 = touchEvent.y
+                if (x2 > x1) {
+                    val i = Intent(this, activity2::class.java)
+                    startActivity(i)
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.stay )
+                }
+            }
+        }
+        return false
     }
 
 
