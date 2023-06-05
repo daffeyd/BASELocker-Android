@@ -5,19 +5,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.aplikasi.R
 import com.google.firebase.database.*
-import kotlin.concurrent.timer
 
 class activity1 : AppCompatActivity() {
     private lateinit var countdownTextView: TextView
     private lateinit var countdown24HoursTextView: TextView
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var countDownTimer24Hours: CountDownTimer
+
+    private var x1: Float = 0f
+    private var x2: Float = 0f
+    private var y1: Float = 0f
+    private var y2: Float = 0f
 
     override fun onStop() {
         super.onStop()
@@ -128,7 +133,8 @@ class activity1 : AppCompatActivity() {
                         val seconds = (millisUntilFinished / 1000) % 60
                         val minutes = (millisUntilFinished / (1000 * 60)) % 60
                         val hours = (millisUntilFinished / (1000 * 60 * 60)) % 24
-                        countdown24HoursTextView.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                        countdown24HoursTextView.text =
+                            String.format("%02d:%02d:%02d", hours, minutes, seconds)
                     }
 
                     override fun onFinish() {
@@ -136,89 +142,125 @@ class activity1 : AppCompatActivity() {
                     }
                 }
 
+
                 val remainingLimitTime = limitTime!! - System.currentTimeMillis()
 
-                countDownTimer = object : CountDownTimer(remainingLimitTime, 1000) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        val seconds = (millisUntilFinished / 1000) % 60
-                        val minutes = (millisUntilFinished / (1000 * 60)) % 60
-                        val hours = (millisUntilFinished / (1000 * 60 * 60)) % 24
-                        countdownTextView.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
+                if (remainingLimitTime > 0) {
+                    countDownTimer = object : CountDownTimer(remainingLimitTime, 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            val seconds = (millisUntilFinished / 1000) % 60
+                            val minutes = (millisUntilFinished / (1000 * 60)) % 60
+                            val hours = (millisUntilFinished / (1000 * 60 * 60)) % 24
+                            countdownTextView.text =
+                                String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                        }
+
+                        override fun onFinish() {
+                            println("Timer expired! 4 minutes have passed.")
+
+                        }
                     }
 
-                    override fun onFinish() {
-                        println("Timer expired! 4 minutes have passed.")
+                    countDownTimer24Hours.start()
+                    countDownTimer.start()
+
+
+                    Log.i("status number", "$remainingLimitTime")
+
+                    val lockerRef = database.getReference("locker/$campus/$location/$name")
+                    getStatusAndPredValue(lockerRef) { status, pred ->
+                        // Use the statusValue here
+
+                        var index = number.toInt()
+                        Log.i("status dan index", "$status, $index")
+                        val statusLocker = status.get(index - 1).toString().toInt()
+
+                        openButton.setOnClickListener {
+                            Log.i("Value index di Open Button", "$index")
+                            val statusValueUpdate =
+                                status.substring(0, index - 1) + "4" + status.substring(index)
+                            val lockerRefUpdate =
+                                database.getReference("locker/$campus/$location/$name/status")
+                            lockerRefUpdate.setValue(statusValueUpdate)
+                        }
+
+                        // Cancel the countdown timers when the "Close" button is pressed
+                        closeButton.setOnClickListener {
+                            val statusValueUpdate =
+                                status.substring(0, index - 1) + "3" + status.substring(index)
+                            val lockerRefUpdate =
+                                database.getReference("locker/$campus/$location/$name/status")
+                            lockerRefUpdate.setValue(statusValueUpdate)
+                        }
+
+                        returnButton.setOnClickListener {
+                            // Create an Intent to go back to MainActivity
+                            val statusValueUpdate =
+                                status.substring(0, index - 1) + "0" + status.substring(index)
+                            val lockerRefUpdate =
+                                database.getReference("locker/$campus/$location/$name/status")
+                            Log.i("status number", "kenapa di return")
+                            lockerRefUpdate.setValue(statusValueUpdate)
+                            val userLocker = "-"
+                            val userLockerRef = database.getReference("user/$username/locker")
+                            userLockerRef.setValue(userLocker)
+                        }
+
+                        if (statusLocker == 0) {
+                            openButton.isEnabled = false
+                            closeButton.isEnabled = false
+                            returnButton.performClick()
+                            Log.i("return button clicker", "memencet return")
+                        }
+
+                        if (statusLocker == 1) {
+                            openButton.isEnabled = false
+                            closeButton.isEnabled = false
+                        }
+
+                        if (statusLocker == 3) {
+                            openButton.isEnabled = true
+                            closeButton.isEnabled = true
+                            imagelock.setImageResource(R.mipmap.unlocked_padlock)
+                        }
+
+                        if (statusLocker == 4 || statusLocker == 2) {
+                            openButton.isEnabled = true
+                            closeButton.isEnabled = true
+                            imagelock.setImageResource(R.drawable.bitmap2x)
+                        }
                     }
+                } else {
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("username", username)
+                    startActivity(intent)
+                    cancelTimers()
+                    finish()
                 }
+            }
+            }
 
-                countDownTimer24Hours.start()
-                countDownTimer.start()
 
-                Log.i("status number", "$remainingLimitTime")
 
-                val lockerRef = database.getReference("locker/$campus/$location/$name")
-                getStatusAndPredValue(lockerRef) { status, pred ->
-                    // Use the statusValue here
-                    var index = number.toInt()
-                    Log.i("status dan index", "$status, $index")
-                    val statusLocker = status.get(index - 1).toString().toInt()
-
-                    openButton.setOnClickListener {
-                        Log.i("Value index di Open Button", "$index")
-                        val statusValueUpdate = status.substring(0, index - 1) + "4" + status.substring(index)
-                        val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
-                        lockerRefUpdate.setValue(statusValueUpdate)
-                    }
-
-                    // Cancel the countdown timers when the "Close" button is pressed
-                    closeButton.setOnClickListener {
-                        val statusValueUpdate = status.substring(0, index - 1) + "3" + status.substring(index)
-                        val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
-                        lockerRefUpdate.setValue(statusValueUpdate)
-                    }
-
-                    returnButton.setOnClickListener {
-                        // Create an Intent to go back to MainActivity
-                        val statusValueUpdate = status.substring(0, index - 1) + "0" + status.substring(index)
-                        val lockerRefUpdate = database.getReference("locker/$campus/$location/$name/status")
-                        Log.i("status number", "kenapa di return")
-                        lockerRefUpdate.setValue(statusValueUpdate)
-                        val userLocker = "-"
-                        val userLockerRef = database.getReference("user/$username/locker")
-                        userLockerRef.setValue(userLocker)
-                    }
-
-                    if (statusLocker == 0) {
-                        openButton.isEnabled = false
-                        closeButton.isEnabled = false
-                        returnButton.performClick()
-                        Log.i("return button clicker", "memencet return")
-                    }
-
-                    if (statusLocker == 1) {
-                        openButton.isEnabled = false
-                        closeButton.isEnabled = false
-                    }
-
-                    if (statusLocker == 3) {
-                        openButton.isEnabled = true
-                        closeButton.isEnabled = true
-                        imagelock.setImageResource(R.mipmap.unlocked_padlock)
-                    }
-
-                    if (statusLocker == 4 || statusLocker == 2) {
-                        openButton.isEnabled = true
-                        closeButton.isEnabled = true
-                        imagelock.setImageResource(R.drawable.bitmap2x)
-                    }
+    }
+    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
+        when (touchEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x1 = touchEvent.x
+                y1 = touchEvent.y
+            }
+            MotionEvent.ACTION_UP -> {
+                x2 = touchEvent.x
+                y2 = touchEvent.y
+                if (x2 > x1) {
+                    val i = Intent(this, activity2::class.java)
+                    startActivity(i)
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.stay )
                 }
-            } else {
-                val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("username", username)
-                startActivity(intent)
-                cancelTimers()
-                finish()
             }
         }
+        return false
     }
 }
