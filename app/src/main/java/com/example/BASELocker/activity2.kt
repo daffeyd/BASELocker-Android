@@ -31,13 +31,6 @@ import java.util.*
 class activity2 : AppCompatActivity() {
 
     private lateinit var buttons: List<Button>
-    private var x1: Float = 0f
-    private var x2: Float = 0f
-    private var y1: Float = 0f
-    private var y2: Float = 0f
-
-
-
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +45,10 @@ class activity2 : AppCompatActivity() {
         val Hellotext = "Hello, $username"
         val usernameTextView = findViewById<TextView>(R.id.greetingTextView1)
         usernameTextView.text = Hellotext
+
+        val lockerText = "Locker $name"
+        val lockerNameTextView = findViewById<TextView>(R.id.titleTextView)
+        lockerNameTextView.text = lockerText
 
         val userRef = database.getReference("user/$username")
         buttons = listOf(
@@ -217,7 +214,7 @@ class activity2 : AppCompatActivity() {
 
                                         val currentTimestamp = System.currentTimeMillis()
                                         val futureTimestamp = currentTimestamp + (24 * 60 * 60 * 1000) // Add 24 hours in milliseconds
-                                        val limitTime = currentTimestamp + ( 60 * 1000) // Add 24 hours in milliseconds
+                                        val limitTime = currentTimestamp + ( 15 * 1000) // Add 24 hours in milliseconds
 
                                         val userLocker = "campus=$campus;location=$location;name=$name;number=$number;limit=$limitTime;time=$futureTimestamp"
                                         val userLockerRef = database.getReference("user/$username/locker")
@@ -244,28 +241,6 @@ class activity2 : AppCompatActivity() {
             }
 
         }
-    }
-    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
-        when (touchEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                x1 = touchEvent.x
-                y1 = touchEvent.y
-            }
-            MotionEvent.ACTION_UP -> {
-                x2 = touchEvent.x
-                y2 = touchEvent.y
-                if (x2 > x1) {
-                    val i = Intent(this, MainActivity::class.java)
-                    startActivity(i)
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.stay)
-                } else if (x1 > x2) {
-                    val i = Intent(this, activity1::class.java)
-                    startActivity(i)
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.stay)
-                }
-            }
-        }
-        return false
     }
 }
 

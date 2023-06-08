@@ -19,11 +19,6 @@ class activity1 : AppCompatActivity() {
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var countDownTimer24Hours: CountDownTimer
 
-    private var x1: Float = 0f
-    private var x2: Float = 0f
-    private var y1: Float = 0f
-    private var y2: Float = 0f
-
     override fun onStop() {
         super.onStop()
         cancelTimers()
@@ -179,7 +174,7 @@ class activity1 : AppCompatActivity() {
                         openButton.setOnClickListener {
                             Log.i("Value index di Open Button", "$index")
                             val statusValueUpdate =
-                                status.substring(0, index - 1) + "4" + status.substring(index)
+                                status.substring(0, index - 1) + "3" + status.substring(index)
                             val lockerRefUpdate =
                                 database.getReference("locker/$campus/$location/$name/status")
                             lockerRefUpdate.setValue(statusValueUpdate)
@@ -188,7 +183,7 @@ class activity1 : AppCompatActivity() {
                         // Cancel the countdown timers when the "Close" button is pressed
                         closeButton.setOnClickListener {
                             val statusValueUpdate =
-                                status.substring(0, index - 1) + "3" + status.substring(index)
+                                status.substring(0, index - 1) + "4" + status.substring(index)
                             val lockerRefUpdate =
                                 database.getReference("locker/$campus/$location/$name/status")
                             lockerRefUpdate.setValue(statusValueUpdate)
@@ -244,23 +239,5 @@ class activity1 : AppCompatActivity() {
 
 
 
-    }
-    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
-        when (touchEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                x1 = touchEvent.x
-                y1 = touchEvent.y
-            }
-            MotionEvent.ACTION_UP -> {
-                x2 = touchEvent.x
-                y2 = touchEvent.y
-                if (x2 > x1) {
-                    val i = Intent(this, activity2::class.java)
-                    startActivity(i)
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.stay )
-                }
-            }
-        }
-        return false
     }
 }

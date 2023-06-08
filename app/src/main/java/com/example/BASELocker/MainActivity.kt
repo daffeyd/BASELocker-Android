@@ -81,17 +81,18 @@ class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
 //                Log.d("rightLeft", "$x",)
 
                 // Calculate the magnitude of the acceleration vector
-                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
+//                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
+//
+//                // Adjust these threshold values as per your requirement
+//                val raiseThreshold = 14 // Threshold for raising the phone
+                    if (y.toInt() > 8 ) {
+                       raiseListener?.onPhoneRaised()
+                    }
 
-                // Adjust these threshold values as per your requirement
-                val raiseThreshold = 10 // Threshold for raising the phone
-                val lowerThreshold = -15 // Threshold for lowering the phone
-                if (y.toInt() > 8) {
 
-                    raiseListener?.onPhoneRaised()
-                   }
 
-                }
+
+            }
             }
         }
     }
@@ -103,11 +104,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var roomLocationEditText: EditText
     private lateinit var lockerNumberEditText: EditText
     private lateinit var textView2: TextView
-    private var x1: Float = 0f
-    private var x2: Float = 0f
-    private var y1: Float = 0f
-    private var y2: Float = 0f
-
 
     private val activity1ResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -197,11 +193,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
     override fun onBackPressed() {
-        // Disable the back button functionality
-        // Uncomment the line below if you want to block the back button completely
-        // super.onBackPressed()
 
-        // Or do nothing to simply ignore the back button press
     }
     @RequiresApi(Build.VERSION_CODES.O)
 
@@ -240,7 +232,16 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
                 phoneRaiseDetector.startListening()
+                var isCampusSelected = false
+                var isLocationSelected = false
+                var isNameSelected = false
+                val showStatusButton = findViewById<Button>(R.id.button)
+                fun enableShowStatusButton(button: Button, campusSelected: Boolean, locationSelected: Boolean, nameSelected: Boolean) {
+                    button.isEnabled = campusSelected && locationSelected && nameSelected
+                }
 
+// Call the function initially to set the initial state of the button
+                enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
 
 
                 val intent = Intent(this, activity2::class.java)
@@ -265,6 +266,9 @@ class MainActivity : AppCompatActivity() {
                         intent.putExtra("campus", "$itemSelected")
                         Log.i("dropdown Campus ","$itemSelected" )
                         Toast.makeText(this, "Campus Location: $itemSelected", Toast.LENGTH_SHORT).show()
+                        isCampusSelected = true
+                        enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                     }
                 }
 
@@ -284,6 +288,9 @@ class MainActivity : AppCompatActivity() {
                             Log.i("dropdown location ", "$itemSelected")
                             Toast.makeText(this, "Room Location: $itemSelected", Toast.LENGTH_SHORT)
                                 .show()
+                            isLocationSelected = true
+                            enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                         }
                 }
                 val nameArrayRef = database.getReference("databases/name")
@@ -303,6 +310,9 @@ class MainActivity : AppCompatActivity() {
                             Log.i("dropdown name ", "$itemSelected")
                             Toast.makeText(this, "Locker Name: $itemSelected", Toast.LENGTH_SHORT)
                                 .show()
+                            isNameSelected = true
+                            enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                         }
                 }
                 //
@@ -313,8 +323,8 @@ class MainActivity : AppCompatActivity() {
                 val combinedText = "$helloText$username"
                 usernameTextView.text = combinedText
 
-                val showStatusButton = findViewById<Button>(R.id.button)
-                showStatusButton.isEnabled = false // Disable the button initially
+
+
 
                 val autoComplete = findViewById<AutoCompleteTextView>(R.id.AutoComplete)
                 val autoCompleteRoom = findViewById<AutoCompleteTextView>(R.id.AutoCompleteRoom)
@@ -394,10 +404,7 @@ class MainActivity : AppCompatActivity() {
                                 startActivity(intent)
                             }
 
-
                         }
-
-
                     } else {
                         // Handle the failure or null response
                         Log.i("failure", "API request failed or received null response")
@@ -409,23 +416,5 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-    }
-    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
-        when (touchEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                x1 = touchEvent.x
-                y1 = touchEvent.y
-            }
-            MotionEvent.ACTION_UP -> {
-                x2 = touchEvent.x
-                y2 = touchEvent.y
-                if (x1 > x2) {
-                    val i = Intent(this, activity2::class.java)
-                    startActivity(i)
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.stay )
-                }
-            }
-        }
-        return false
     }
 }

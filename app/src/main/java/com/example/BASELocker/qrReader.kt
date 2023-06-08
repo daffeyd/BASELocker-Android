@@ -56,17 +56,25 @@ class qrReader : AppCompatActivity() {
 
             decodeCallback = DecodeCallback { result ->
                 runOnUiThread {
+                    binding.tvText.text = "Scanning.."
                     val scannedValue = result.text
-                    val parts = scannedValue.split(";")
-                    val campus = parts[0]
-                    val location = parts[1]
-                    val name = parts[2]
+                    val campus = scannedValue?.substringAfter("campus=")?.substringBefore(",")
+                    val location = scannedValue?.substringAfter("location=")?.substringBefore(",")
+                    val name = scannedValue?.substringAfter("name=")
+                    if (campus.equals(location) && location.equals(name)){
+                        binding.tvText.text = "Please scan QR Code near the destinated locker"
 
-                    intentAct2.putExtra("username", username)
-                    intentAct2.putExtra("campus", campus)
-                    intentAct2.putExtra("location", location)
-                    intentAct2.putExtra("name", name)
-                    startActivity(intentAct2)
+                    }
+                    else{
+
+                        intentAct2.putExtra("username", username)
+                        intentAct2.putExtra("campus", campus)
+                        intentAct2.putExtra("location", location)
+                        intentAct2.putExtra("name", name)
+                        Log.d("qrReader", "Scanned value: $campus,$location,$name")
+                        startActivity(intentAct2)
+                    }
+
 
 //                    binding.tvText.text = scannedValue
 //                    Log.d("qrReader", "Scanned value: $scannedValue")
