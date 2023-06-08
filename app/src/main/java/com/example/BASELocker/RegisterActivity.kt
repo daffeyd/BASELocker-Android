@@ -2,6 +2,7 @@ package com.example.BASELocker
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,10 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var loading: View
+    private var x1: Float = 0f
+    private var x2: Float = 0f
+    private var y1: Float = 0f
+    private var y2: Float = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,5 +61,23 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    override fun onTouchEvent(touchEvent: MotionEvent): Boolean {
+        when (touchEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x1 = touchEvent.x
+                y1 = touchEvent.y
+            }
+            MotionEvent.ACTION_UP -> {
+                x2 = touchEvent.x
+                y2 = touchEvent.y
+                if (x2> x1) {
+                    val i = Intent(this, LoginActivity::class.java)
+                    startActivity(i)
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.stay)
+                }
+            }
+        }
+        return false
     }
 }

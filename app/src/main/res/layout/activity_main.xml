@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    tools:context=".MainActivity">
+    tools:context="com.example.BASELocker.MainActivity">
 
     <TextView
         android:id="@+id/textView2"
@@ -26,10 +26,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/greeting1"
+        android:text="Please choose your locker's location"
+        android:textSize="55px"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
+    <TextView
+        android:id="@+id/greeting2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="Please fill the form below\nor scan QR Code near the destinated locker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/greeting1" />
+    <TextView
+        android:id="@+id/greeting3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:text="*Activate camera by raising your phone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/greeting2" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/CampusLocDropdown"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -40,7 +63,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/greeting1"
+        app:layout_constraintTop_toBottomOf="@+id/greeting3"
         app:layout_constraintVertical_bias="0.1">
 
         <AutoCompleteTextView
@@ -49,6 +72,7 @@
             android:layout_height="wrap_content"
             android:hint="Campus"
             android:padding="16dp"
+            android:inputType="none"
             android:text="Campus Location" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,6 +92,7 @@
         <AutoCompleteTextView
             android:id="@+id/AutoCompleteRoom"
             android:layout_width="match_parent"
+            android:inputType="none"
             android:layout_height="wrap_content"
             android:hint="Room Location"
             android:padding="16dp"
@@ -93,6 +118,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Locker Name"
+            android:inputType="none"
             android:padding="16dp"
             android:text="Locker Name" />
 

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -30,9 +31,6 @@ import java.util.*
 class activity2 : AppCompatActivity() {
 
     private lateinit var buttons: List<Button>
-
-
-
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +41,14 @@ class activity2 : AppCompatActivity() {
         val campus = intent.getStringExtra("campus")
         val location = intent.getStringExtra("location")
         val name = intent.getStringExtra("name")
+
+        val Hellotext = "Hello, $username"
+        val usernameTextView = findViewById<TextView>(R.id.greetingTextView1)
+        usernameTextView.text = Hellotext
+
+        val lockerText = "Locker $name"
+        val lockerNameTextView = findViewById<TextView>(R.id.titleTextView)
+        lockerNameTextView.text = lockerText
 
         val userRef = database.getReference("user/$username")
         buttons = listOf(
@@ -208,21 +214,13 @@ class activity2 : AppCompatActivity() {
 
                                         val currentTimestamp = System.currentTimeMillis()
                                         val futureTimestamp = currentTimestamp + (24 * 60 * 60 * 1000) // Add 24 hours in milliseconds
-                                        val limitTime = currentTimestamp + ( 60 * 1000) // Add 24 hours in milliseconds
+                                        val limitTime = currentTimestamp + ( 15 * 1000) // Add 24 hours in milliseconds
 
                                         val userLocker = "campus=$campus;location=$location;name=$name;number=$number;limit=$limitTime;time=$futureTimestamp"
                                         val userLockerRef = database.getReference("user/$username/locker")
                                         userLockerRef.setValue(userLocker)
 
                                     } else {
-                                        val number = index + 1
-                                        val currentTimestamp = System.currentTimeMillis()
-                                        val futureTimestamp = currentTimestamp + (24 * 60 * 60 * 1000) // Add 24 hours in milliseconds
-                                        val limitTime = currentTimestamp + ( 60 * 1000) // Add 24 hours in milliseconds
-
-                                        val userLocker = "campus=$campus;location=$location;name=$name;number=$number;limit=$limitTime;time=$futureTimestamp"
-                                        val userLockerRef = database.getReference("user/$username/locker")
-                                        userLockerRef.setValue(userLocker)
                                         // Handle the failure or null response
                                         Log.i("failure", "API request failed or received null response")
                                     }
@@ -243,10 +241,7 @@ class activity2 : AppCompatActivity() {
             }
 
         }
-
-
-
-}
+    }
 }
 
 

@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">BASELocker</string>
-    <string name="greeting1">Please Choose your Locker Location</string>
     <string name="campuslocation">Campus Location</string>
     <string name="roomLocation">Room Location</string>
     <string name="lockerNumber">Locker Number</string>
     <string name="Status">Show Status</string>
-    <string name="openLocker">Time to Open Locker is 1 Minute</string>
-    <string name="countdown">Countdown time to Borrow: 1 Minute</string>
-    <string name="countdown_ret">Countdown Time to Return: 24 Hours</string>
+    <string name="openLocker">Time to open your locker is 15 seconds </string>
+    <string name="countdown">Countdown time to open: 15 seconds</string>
+    <string name="countdown_ret">Countdown time to return: 24 hours</string>
 
 </resources>

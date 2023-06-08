@@ -8,6 +8,22 @@
     android:padding="16dp"
     tools:context="com.example.BASELocker.activity2">
 
+    <TextView
+        android:id="@+id/greetingTextView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Hello"
+        android:textSize="24sp" />
+    <TextView
+        android:id="@+id/explanation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Silahkan memilih nomor loker yang ingin dipinjam"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/titleTextView"
@@ -15,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:text="Locker Reservation"
+        android:text="Locker"
         android:textSize="24sp" />
 
     <LinearLayout
@@ -135,31 +151,32 @@
         android:id="@+id/fourthRow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_marginBottom="10dp">
+        android:orientation="vertical">
+
+
         <Button
             android:id="@+id/Button7"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
             android:layout_marginRight="15dp"
+            android:background="@color/green"
+            android:enabled="false"
             android:text="7"
             android:textSize="4pt"
-            app:backgroundTint="@null"
-            android:background="@color/green"
-            android:enabled="false"/>
-
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/Button8"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:background="@color/green"
+            android:enabled="false"
             android:text="8"
             android:textSize="4pt"
-            app:backgroundTint="@null"
-            android:background="@color/green"
-            android:enabled="false"/>
+            app:backgroundTint="@null" />
 
     </TableRow>
 

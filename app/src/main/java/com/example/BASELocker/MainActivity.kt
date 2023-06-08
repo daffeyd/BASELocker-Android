@@ -7,7 +7,10 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,16 +28,77 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+
+class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
+
+    private val sensorManager: SensorManager =
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+    private val accelerometer: Sensor? =
+        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    private var raiseListener: PhoneRaiseListener? = null
+
+    // Interface for receiving phone raise events
+    interface PhoneRaiseListener {
+        fun onPhoneRaised()
+        fun onPhoneLowered()
+    }
+
+    // Register the phone raise listener
+    fun setPhoneRaiseListener(listener: PhoneRaiseListener) {
+        raiseListener = listener
+    }
+
+    // Start listening for phone raise events
+    fun startListening() {
+        accelerometer?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    // Stop listening for phone raise events
+    fun stopListening() {
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Not used in this example
+    }
+    override fun onSensorChanged(event: SensorEvent?) {
+        event?.let { sensorEvent ->
+            if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                val x = sensorEvent.values[0]
+                val y = sensorEvent.values[1]
+                val z = sensorEvent.values[2]
+//
+//                Log.d("updown", "$y",)
+//                Log.d("rightLeft", "$x",)
+
+                // Calculate the magnitude of the acceleration vector
+//                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
+//
+//                // Adjust these threshold values as per your requirement
+//                val raiseThreshold = 14 // Threshold for raising the phone
+                    if (y.toInt() > 8 ) {
+                       raiseListener?.onPhoneRaised()
+                    }
+
+
+
+
+            }
+            }
+        }
+    }
+
 
 class MainActivity : AppCompatActivity() {
-    data class Locker(val campus: Campus)
-
-    data class Campus(val location: Location)
-
-    data class Location(val name: Name)
-
-    data class Name(val status: String, val prediction: String)
-
 
     private lateinit var campusLocationEditText: EditText
     private lateinit var roomLocationEditText: EditText
@@ -129,13 +193,10 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
     override fun onBackPressed() {
-        // Disable the back button functionality
-        // Uncomment the line below if you want to block the back button completely
-        // super.onBackPressed()
 
-        // Or do nothing to simply ignore the back button press
     }
     @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -147,13 +208,42 @@ class MainActivity : AppCompatActivity() {
 
 
         getUsernameandPassValue(userRef) { pass, locker ->
+
             if (locker != "-"){
-                val intent = Intent(this, activity1::class.java)
-                intent.putExtra("username", username)
-                startActivity(intent)
+                val intentNone = Intent(this, activity1::class.java)
+                intentNone.putExtra("username", username)
+                startActivity(intentNone)
             }
             else{
-                //
+                val intentQR = Intent(this, qrReader::class.java)
+
+                val phoneRaiseDetector = PhoneRaiseDetector(this)
+
+                phoneRaiseDetector.setPhoneRaiseListener(object : PhoneRaiseDetector.PhoneRaiseListener {
+                    override fun onPhoneRaised() {
+                        phoneRaiseDetector.stopListening()
+                        intentQR.putExtra("username", username)
+                        startActivity(intentQR)
+                        Log.i("Phone Raised", "naiik")
+                    }
+
+                    override fun onPhoneLowered() {
+                        Log.i("Phone Lowered", "Turun")
+                    }
+                })
+                phoneRaiseDetector.startListening()
+                var isCampusSelected = false
+                var isLocationSelected = false
+                var isNameSelected = false
+                val showStatusButton = findViewById<Button>(R.id.button)
+                fun enableShowStatusButton(button: Button, campusSelected: Boolean, locationSelected: Boolean, nameSelected: Boolean) {
+                    button.isEnabled = campusSelected && locationSelected && nameSelected
+                }
+
+// Call the function initially to set the initial state of the button
+                enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
+
                 val intent = Intent(this, activity2::class.java)
                 intent.putExtra("username", username)
                 val campusArrayRef = database.getReference("databases/campus")
@@ -176,6 +266,9 @@ class MainActivity : AppCompatActivity() {
                         intent.putExtra("campus", "$itemSelected")
                         Log.i("dropdown Campus ","$itemSelected" )
                         Toast.makeText(this, "Campus Location: $itemSelected", Toast.LENGTH_SHORT).show()
+                        isCampusSelected = true
+                        enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                     }
                 }
 
@@ -195,6 +288,9 @@ class MainActivity : AppCompatActivity() {
                             Log.i("dropdown location ", "$itemSelected")
                             Toast.makeText(this, "Room Location: $itemSelected", Toast.LENGTH_SHORT)
                                 .show()
+                            isLocationSelected = true
+                            enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                         }
                 }
                 val nameArrayRef = database.getReference("databases/name")
@@ -214,6 +310,9 @@ class MainActivity : AppCompatActivity() {
                             Log.i("dropdown name ", "$itemSelected")
                             Toast.makeText(this, "Locker Name: $itemSelected", Toast.LENGTH_SHORT)
                                 .show()
+                            isNameSelected = true
+                            enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
+
                         }
                 }
                 //
@@ -225,13 +324,43 @@ class MainActivity : AppCompatActivity() {
                 usernameTextView.text = combinedText
 
 
-                val showStatusButton = findViewById<Button>(R.id.button)
+
+
+                val autoComplete = findViewById<AutoCompleteTextView>(R.id.AutoComplete)
+                val autoCompleteRoom = findViewById<AutoCompleteTextView>(R.id.AutoCompleteRoom)
+                val autoCompleteLocker = findViewById<AutoCompleteTextView>(R.id.AutoCompleteLocker)
+
+                val dropdowns = listOf(autoComplete, autoCompleteRoom, autoCompleteLocker)
+
+                // Set a listener for each dropdown
+                dropdowns.forEach { dropdown ->
+                    dropdown.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                            // No implementation needed
+                        }
+
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            // Check if all dropdowns have selections
+                            val allDropdownsSelected = dropdowns.all { it.text.isNotEmpty() }
+
+                            // Enable or disable the button based on the dropdowns' state
+                            showStatusButton.isEnabled = allDropdownsSelected
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {
+                            // No implementation needed
+                        }
+                    })
+                }
+
+                // Button click listener
                 showStatusButton.setOnClickListener {
 
-
+                    phoneRaiseDetector.stopListening()
 
                     startActivity(intent)
                 }
+
 
                 val currentDateTime = LocalDateTime.now()
                 val formattedDateTime = currentDateTime.format(DateTimeFormatter.ofPattern("EEEE, HH:mm:ss"))
@@ -271,13 +400,11 @@ class MainActivity : AppCompatActivity() {
                                 intent.putExtra("campus", campus)
                                 intent.putExtra("location", location)
                                 intent.putExtra("name", predictedValue)
+                                phoneRaiseDetector.stopListening()
                                 startActivity(intent)
                             }
 
-
                         }
-
-
                     } else {
                         // Handle the failure or null response
                         Log.i("failure", "API request failed or received null response")
