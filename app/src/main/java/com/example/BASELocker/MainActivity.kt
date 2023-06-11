@@ -73,9 +73,8 @@ class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let { sensorEvent ->
             if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-                val x = sensorEvent.values[0]
+
                 val y = sensorEvent.values[1]
-                val z = sensorEvent.values[2]
 //
 //                Log.d("updown", "$y",)
 //                Log.d("rightLeft", "$x",)

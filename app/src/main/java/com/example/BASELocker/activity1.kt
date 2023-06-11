@@ -84,11 +84,12 @@ class activity1 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_1)
 
-        val username = intent.getStringExtra("username")
+        var username = intent.getStringExtra("username")
         val database = FirebaseDatabase.getInstance()
         val userRef = database.getReference("user/$username")
 
         getUsernameAndPassValue(userRef) { pass, locker ->
+            username = intent.getStringExtra("username")
             if (locker != "-") {
                 countdownTextView = findViewById(R.id.countdownTextView)
                 countdown24HoursTextView = findViewById(R.id.countdown24HoursTextView)
@@ -141,7 +142,7 @@ class activity1 : AppCompatActivity() {
                 val remainingLimitTime = limitTime!! - System.currentTimeMillis()
 
 
-                if (remainingLimitTime > 0) {
+
                     countDownTimer = object : CountDownTimer(remainingLimitTime, 1000) {
                         override fun onTick(millisUntilFinished: Long) {
                             val seconds = (millisUntilFinished / 1000) % 60
@@ -240,4 +241,4 @@ class activity1 : AppCompatActivity() {
 
 
     }
-}
+
