@@ -56,8 +56,6 @@ private fun checkCredentials(
     }
 }
 
-
-
 class   LoginActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityLoginBinding
@@ -96,7 +94,6 @@ class   LoginActivity : AppCompatActivity() {
                         intent.putExtra("username", username)
                         intent.putExtra("password", pwd)
                         intent.putExtra("locker", lockerString)
-
                         startActivity(intent)
                         finish()
                     } else {

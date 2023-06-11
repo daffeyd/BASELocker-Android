@@ -213,6 +213,7 @@ class activity1 : AppCompatActivity() {
                         if (statusLocker == 1) {
                             openButton.isEnabled = false
                             closeButton.isEnabled = false
+                            imagelock.setImageResource(R.mipmap.unlocked_padlock)
                         }
 
                         if (statusLocker == 3) {

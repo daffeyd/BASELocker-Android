@@ -10,21 +10,17 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import com.example.aplikasi.R
 import com.example.httpreq.RequestModel
 import com.example.httpreq.ResponseModel
 import com.example.httpreq.ServiceBuilder
 import com.google.firebase.database.*
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -75,16 +71,7 @@ class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
             if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
 
                 val y = sensorEvent.values[1]
-//
-//                Log.d("updown", "$y",)
-//                Log.d("rightLeft", "$x",)
-
-                // Calculate the magnitude of the acceleration vector
-//                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
-//
-//                // Adjust these threshold values as per your requirement
-//                val raiseThreshold = 14 // Threshold for raising the phone
-                    if (y.toInt() > 8 ) {
+                if (y.toInt() > 8 ) {
                        raiseListener?.onPhoneRaised()
                     }
 
@@ -99,24 +86,6 @@ class PhoneRaiseDetector(private val context: Context) : SensorEventListener {
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var campusLocationEditText: EditText
-    private lateinit var roomLocationEditText: EditText
-    private lateinit var lockerNumberEditText: EditText
-    private lateinit var textView2: TextView
-
-    private val activity1ResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                val campusLocation = data?.getStringExtra("campusLocation")
-                val roomLocation = data?.getStringExtra("roomLocation")
-                val lockerNumber = data?.getStringExtra("lockerNumber")
-
-                campusLocationEditText.setText(campusLocation)
-                roomLocationEditText.setText(roomLocation)
-                lockerNumberEditText.setText(lockerNumber)
-            }
-        }
     fun getUsernameandPassValue(lockerRef: DatabaseReference, onStatusValue: (String, String?) -> Unit) {
         lockerRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -239,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                     button.isEnabled = campusSelected && locationSelected && nameSelected
                 }
 
-// Call the function initially to set the initial state of the button
+                // Call the function initially to set the initial state of the button
                 enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
 
 
@@ -322,41 +291,10 @@ class MainActivity : AppCompatActivity() {
                 val combinedText = "$helloText$username"
                 usernameTextView.text = combinedText
 
-
-
-
-                val autoComplete = findViewById<AutoCompleteTextView>(R.id.AutoComplete)
-                val autoCompleteRoom = findViewById<AutoCompleteTextView>(R.id.AutoCompleteRoom)
-                val autoCompleteLocker = findViewById<AutoCompleteTextView>(R.id.AutoCompleteLocker)
-
-                val dropdowns = listOf(autoComplete, autoCompleteRoom, autoCompleteLocker)
-
-                // Set a listener for each dropdown
-                dropdowns.forEach { dropdown ->
-                    dropdown.addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                            // No implementation needed
-                        }
-
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                            // Check if all dropdowns have selections
-                            val allDropdownsSelected = dropdowns.all { it.text.isNotEmpty() }
-
-                            // Enable or disable the button based on the dropdowns' state
-                            showStatusButton.isEnabled = allDropdownsSelected
-                        }
-
-                        override fun afterTextChanged(s: Editable?) {
-                            // No implementation needed
-                        }
-                    })
-                }
-
                 // Button click listener
                 showStatusButton.setOnClickListener {
 
                     phoneRaiseDetector.stopListening()
-
                     startActivity(intent)
                 }
 

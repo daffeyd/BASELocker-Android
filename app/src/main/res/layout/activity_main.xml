@@ -140,8 +140,8 @@
         android:id="@+id/conditionalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:text="Recommendation"
+        android:enabled="true"
+        android:text="Recommendation Locker:\ncampus:Binus ASO\nlocation:main hallway\nname:n"
         app:layout_constraintTop_toBottomOf="@+id/button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
