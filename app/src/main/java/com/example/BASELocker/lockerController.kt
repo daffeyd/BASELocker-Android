@@ -1,11 +1,9 @@
 package com.example.BASELocker
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import android.view.MotionEvent
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +11,7 @@ import android.widget.TextView
 import com.example.aplikasi.R
 import com.google.firebase.database.*
 
-class activity1 : AppCompatActivity() {
+class lockerController : AppCompatActivity() {
     private lateinit var countdownTextView: TextView
     private lateinit var countdown24HoursTextView: TextView
     private lateinit var countDownTimer: CountDownTimer
@@ -82,7 +80,7 @@ class activity1 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_1)
+        setContentView(R.layout.locker_controller)
 
         var username = intent.getStringExtra("username")
         val database = FirebaseDatabase.getInstance()

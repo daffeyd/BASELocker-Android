@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -28,14 +27,14 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 
-class activity2 : AppCompatActivity() {
+class lockerNumberSelector : AppCompatActivity() {
 
     private lateinit var buttons: List<Button>
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_2)
+        setContentView(R.layout.locker_number_selector)
         val database = FirebaseDatabase.getInstance()
         val username = intent.getStringExtra("username")
         val campus = intent.getStringExtra("campus")
@@ -126,7 +125,7 @@ class activity2 : AppCompatActivity() {
 
         getUsernameandPassValue(userRef) { pass, locker ->
             if (locker != "-"){
-                val intent = Intent(this, activity1::class.java)
+                val intent = Intent(this, lockerController::class.java)
                 intent.putExtra("username", username)
                 intent.putExtra("locker", locker)
                 startActivity(intent)
@@ -143,7 +142,7 @@ class activity2 : AppCompatActivity() {
                         val statusValueIndex = status.substring(index, index + 1).toInt()
                         if (statusValueIndex == 0) {
                             button.isEnabled = true
-                            button.setBackgroundColor(ContextCompat.getColor(this@activity2,
+                            button.setBackgroundColor(ContextCompat.getColor(this@lockerNumberSelector,
                                 R.color.green
                             ))
                             val buttonIndex = index.toInt()
@@ -167,7 +166,7 @@ class activity2 : AppCompatActivity() {
 
                                 button.text = predReturnText
 
-                                button.setBackgroundColor(ContextCompat.getColor(this@activity2,
+                                button.setBackgroundColor(ContextCompat.getColor(this@lockerNumberSelector,
                                     R.color.red
                                 ))
                                 myRef.setValue("tombol merah")

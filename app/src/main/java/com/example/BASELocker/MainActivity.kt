@@ -2,13 +2,10 @@ package com.example.BASELocker
 
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -178,7 +175,7 @@ class MainActivity : AppCompatActivity() {
         getUsernameandPassValue(userRef) { pass, locker ->
 
             if (locker != "-"){
-                val intentNone = Intent(this, activity1::class.java)
+                val intentNone = Intent(this, lockerController::class.java)
                 intentNone.putExtra("username", username)
                 startActivity(intentNone)
             }
@@ -212,7 +209,7 @@ class MainActivity : AppCompatActivity() {
                 enableShowStatusButton(showStatusButton, isCampusSelected, isLocationSelected, isNameSelected)
 
 
-                val intent = Intent(this, activity2::class.java)
+                val intent = Intent(this, lockerNumberSelector::class.java)
                 intent.putExtra("username", username)
                 val campusArrayRef = database.getReference("databases/campus")
 

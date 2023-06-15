@@ -1,15 +1,12 @@
 package com.example.BASELocker
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.budiyev.android.codescanner.*
@@ -41,7 +38,7 @@ class qrReader : AppCompatActivity() {
 
     private fun codeScanner() {
         val username = intent.getStringExtra("username")
-        val intentAct2 = Intent(this, activity2::class.java)
+        val intentAct2 = Intent(this, lockerNumberSelector::class.java)
         codeScanner = CodeScanner(this, binding.scn)
 
         codeScanner.apply {
@@ -62,7 +59,7 @@ class qrReader : AppCompatActivity() {
                     val location = scannedValue?.substringAfter("location=")?.substringBefore(",")
                     val name = scannedValue?.substringAfter("name=")
                     if (campus.equals(location) && location.equals(name)){
-                        binding.tvText.text = "Please scan QR Code near the destinated locker"
+                        binding.tvText.text = "Please scan QR Code near the designated lockers"
 
                     }
                     else{
