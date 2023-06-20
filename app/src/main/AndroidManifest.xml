@@ -33,11 +33,11 @@
         </activity>
 
         <activity
-            android:name="com.example.BASELocker.activity2"
+            android:name="com.example.BASELocker.lockerController"
             android:exported="false" />
 
         <activity
-            android:name="com.example.BASELocker.activity1"
+            android:name="com.example.BASELocker.lockerNumberSelector"
             android:exported="false" />
 
         <activity

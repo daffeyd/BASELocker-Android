@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.example.aplikasi.R
 import com.google.firebase.database.*
 
@@ -95,7 +96,7 @@ class lockerController : AppCompatActivity() {
                 val openButton: Button = findViewById(R.id.button_Open)
                 val closeButton: Button = findViewById(R.id.button_Close)
                 val returnButton: Button = findViewById(R.id.button_Return)
-                val imagelock: ImageView = findViewById(R.id.imageView)
+                val   imagelock: ImageView = findViewById(R.id.imageView)
 
                 val campus = locker?.substringAfter("campus=")?.substringBefore(";").toString()
                 val location = locker?.substringAfter("location=")?.substringBefore(";").toString()
@@ -217,12 +218,20 @@ class lockerController : AppCompatActivity() {
                         if (statusLocker == 3) {
                             openButton.isEnabled = true
                             closeButton.isEnabled = true
+                            openButton.setBackgroundColor(
+                                ContextCompat.getColor(this@lockerController,
+                                    R.color.red)
+                            )
                             imagelock.setImageResource(R.mipmap.unlocked_padlock)
                         }
 
                         if (statusLocker == 4 || statusLocker == 2) {
                             openButton.isEnabled = true
                             closeButton.isEnabled = true
+                            openButton.setBackgroundColor(
+                                ContextCompat.getColor(this@lockerController,
+                                    R.color.green)
+                            )
                             imagelock.setImageResource(R.drawable.bitmap2x)
                         }
                     }
